@@ -1,23 +1,76 @@
-import { FC, useMemo } from 'react';
+import { FC, useMemo, useEffect, useState } from 'react';
+import { useParams, useLocation } from 'react-router-dom';
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
-import { TIngredient } from '@utils-types';
+import { TIngredient, TOrder } from '@utils-types';
+import { useAppSelector } from '@services/store';
+import { selectIngredients } from '@services/ingredients/slice';
+import { selectOrders } from '@services/feed/slice';
+import { selectUserOrders } from '@services/user-orders/slice';
+import { getOrderByNumberApi } from '@api';
 
-export const OrderInfo: FC = () => {
-  /** TODO: взять переменные orderData и ingredients из стора */
-  const orderData = {
-    createdAt: '',
-    ingredients: [],
-    _id: '',
-    status: '',
-    name: '',
-    updatedAt: 'string',
-    number: 0
-  };
+type OrderInfoProps = {
+  id?: string;
+};
 
-  const ingredients: TIngredient[] = [];
+export const OrderInfo: FC<OrderInfoProps> = ({ id: propId }) => {
+  const { id: paramId } = useParams<{ id: string }>();
+  const location = useLocation();
+  const ingredients = useAppSelector(selectIngredients);
+  const feedOrders = useAppSelector(selectOrders);
+  const userOrders = useAppSelector(selectUserOrders);
+  const [orderData, setOrderData] = useState<TOrder | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  /* Готовим данные для отображения */
+  const id =
+    propId ||
+    paramId ||
+    location.pathname.match(/\/feed\/(\d+)/)?.[1] ||
+    location.pathname.match(/\/profile\/orders\/(\d+)/)?.[1];
+
+  const isProfileOrder = location.pathname.includes('/profile/orders/');
+
+  useEffect(() => {
+    const orderNumber = id ? parseInt(id, 10) : null;
+    if (!orderNumber) {
+      setIsLoading(false);
+      return;
+    }
+
+    if (isProfileOrder) {
+      const orderFromUserOrders = userOrders.find(
+        (order) => order.number === orderNumber
+      );
+      if (orderFromUserOrders) {
+        setOrderData(orderFromUserOrders);
+        setIsLoading(false);
+        return;
+      }
+    }
+
+    const orderFromFeed = feedOrders.find(
+      (order) => order.number === orderNumber
+    );
+    if (orderFromFeed) {
+      setOrderData(orderFromFeed);
+      setIsLoading(false);
+      return;
+    }
+
+    getOrderByNumberApi(orderNumber)
+      .then((response) => {
+        if (response.success && response.orders && response.orders.length > 0) {
+          setOrderData(response.orders[0]);
+        }
+      })
+      .catch(() => {
+        // Error handling
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [id, feedOrders, userOrders, isProfileOrder]);
+
   const orderInfo = useMemo(() => {
     if (!orderData || !ingredients.length) return null;
 
@@ -59,7 +112,7 @@ export const OrderInfo: FC = () => {
     };
   }, [orderData, ingredients]);
 
-  if (!orderInfo) {
+  if (isLoading || !orderInfo) {
     return <Preloader />;
   }
 
