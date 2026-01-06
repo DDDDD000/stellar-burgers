@@ -1,10 +1,13 @@
 import {
   ConstructorPage,
   Feed,
+  FeedOrderPage,
   ForgotPassword,
+  IngredientPage,
   Login,
   NotFound404,
   Profile,
+  ProfileOrderPage,
   ProfileOrders,
   Register,
   ResetPassword
@@ -18,7 +21,7 @@ import {
   ModalOrderInfo,
   ModalProfileOrderInfo
 } from '@components';
-import { Route, Routes, useLocation, matchPath } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import { ProtectedRoute } from '../protected-route/protected-route';
 import { useAppDispatch } from '@services/store';
 import { useEffect } from 'react';
@@ -53,9 +56,6 @@ const App = () => {
     checkAuth();
   }, [dispatch]);
 
-  const ingredientMatch = matchPath('/ingredients/:id', location.pathname);
-  const feedOrderMatch = matchPath('/feed/:id', location.pathname);
-  const profileOrderMatch = matchPath('/profile/orders/:id', location.pathname);
   const background = location.state?.background;
 
   return (
@@ -64,6 +64,8 @@ const App = () => {
       <Routes location={background || location}>
         <Route path='/' element={<ConstructorPage />} />
         <Route path='/feed' element={<Feed />} />
+        <Route path='/ingredients/:id' element={<IngredientPage />} />
+        <Route path='/feed/:id' element={<FeedOrderPage />} />
         <Route
           path='/login'
           element={<ProtectedRoute onlyUnAuth component={<Login />} />}
@@ -88,16 +90,22 @@ const App = () => {
           path='/profile/orders'
           element={<ProtectedRoute component={<ProfileOrders />} />}
         />
-        <Route path='*' element={<NotFound404 />} />
-      </Routes>
-      <Routes location={location}>
-        <Route path='/ingredients/:id' element={<ModalIngredientDetails />} />
-        <Route path='/feed/:id' element={<ModalOrderInfo />} />
         <Route
           path='/profile/orders/:id'
-          element={<ProtectedRoute component={<ModalProfileOrderInfo />} />}
+          element={<ProtectedRoute component={<ProfileOrderPage />} />}
         />
+        <Route path='*' element={<NotFound404 />} />
       </Routes>
+      {background && (
+        <Routes location={location}>
+          <Route path='/ingredients/:id' element={<ModalIngredientDetails />} />
+          <Route path='/feed/:id' element={<ModalOrderInfo />} />
+          <Route
+            path='/profile/orders/:id'
+            element={<ProtectedRoute component={<ModalProfileOrderInfo />} />}
+          />
+        </Routes>
+      )}
     </div>
   );
 };

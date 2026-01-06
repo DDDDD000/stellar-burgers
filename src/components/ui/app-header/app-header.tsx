@@ -7,45 +7,60 @@ import {
   Logo,
   ProfileIcon
 } from '@zlden/react-developer-burger-ui-components';
-import { useNavigate } from 'react-router-dom';
+import { NavLink, matchPath, useLocation } from 'react-router-dom';
 
 export const AppHeaderUI: FC<TAppHeaderUIProps> = ({ userName }) => {
-  const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <header className={styles.header}>
       <nav className={`${styles.menu} p-4`}>
         <div className={styles.menu_part_left}>
-          <div
-            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-            onClick={() => navigate('/')}
+          <NavLink
+            to='/'
+            className={({ isActive }) =>
+              `${styles.link} ${isActive ? styles.link_active : ''}`
+            }
+            end
+            style={{ display: 'flex', alignItems: 'center' }}
           >
             <BurgerIcon type={'primary'} />
             <p className='text text_type_main-default ml-2 mr-10'>
               Конструктор
             </p>
-          </div>
-          <div
-            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-            onClick={() => navigate('/feed')}
+          </NavLink>
+          <NavLink
+            to='/feed'
+            className={({ isActive }) => {
+              const isFeedActive =
+                isActive || matchPath('/feed/:id', location.pathname) !== null;
+              return `${styles.link} ${isFeedActive ? styles.link_active : ''}`;
+            }}
+            style={{ display: 'flex', alignItems: 'center' }}
           >
             <ListIcon type={'primary'} />
             <p className='text text_type_main-default ml-2'>Лента заказов</p>
-          </div>
+          </NavLink>
         </div>
         <div className={styles.logo}>
           <Logo className='' />
         </div>
-        <div
-          className={styles.link_position_last}
-          onClick={() => navigate('/profile')}
-          style={{ cursor: 'pointer' }}
+        <NavLink
+          to='/profile'
+          className={({ isActive }) => {
+            const isProfileActive =
+              isActive || matchPath('/profile/*', location.pathname) !== null;
+            return `${styles.link_position_last} ${styles.link} ${
+              isProfileActive ? styles.link_active : ''
+            }`;
+          }}
+          style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
         >
           <ProfileIcon type={'primary'} />
           <p className='text text_type_main-default ml-2'>
             {userName || 'Личный кабинет'}
           </p>
-        </div>
+        </NavLink>
       </nav>
     </header>
   );
