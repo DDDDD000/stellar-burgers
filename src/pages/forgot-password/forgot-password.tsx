@@ -6,25 +6,30 @@ import { ForgotPasswordUI } from '@ui-pages';
 
 export const ForgotPassword: FC = () => {
   const [email, setEmail] = useState('');
-  const [error, setError] = useState<Error | null>(null);
+  const [errorText, setErrorText] = useState('');
 
   const navigate = useNavigate();
 
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
 
-    setError(null);
+    setErrorText('');
     forgotPasswordApi({ email })
       .then(() => {
         localStorage.setItem('resetPassword', 'true');
         navigate('/reset-password', { replace: true });
       })
-      .catch((err) => setError(err));
+      .catch((err) => {
+        setErrorText(
+          err?.message ||
+            'Ошибка при восстановлении пароля. Попробуйте еще раз.'
+        );
+      });
   };
 
   return (
     <ForgotPasswordUI
-      errorText={error?.message}
+      errorText={errorText}
       email={email}
       setEmail={setEmail}
       handleSubmit={handleSubmit}

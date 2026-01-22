@@ -20,6 +20,10 @@
   color: var(--text-inactive-color);
 }
 
+.link p {
+  color: inherit;
+}
+
 .link_active {
   color: var(--text-primary-color);
 }
