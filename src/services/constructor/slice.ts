@@ -9,7 +9,7 @@ type TConstructorState = {
   orderModalData: TOrder | null;
 };
 
-const initialState: TConstructorState = {
+export const initialState: TConstructorState = {
   bun: null,
   ingredients: [],
   orderRequest: false,
