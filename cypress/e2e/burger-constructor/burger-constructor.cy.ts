@@ -1,8 +1,16 @@
-describe('Конструктор ингредиетов', () => {
-  const URL = process.env.BURGER_API_URL;
+import {
+  ADD_BUTTON_TEXT,
+  BUN_NAME,
+  INGREDIENTS_API,
+  LIST_ITEM,
+  MAIN_NAME,
+  ORDER_BUTTON_TEXT,
+  SAUCE_NAME
+} from 'cypress/support/constants';
 
+describe('Конструктор ингредиетов', () => {
   beforeEach(() => {
-    cy.intercept('GET', '**/ingredients', {
+    cy.intercept('GET', INGREDIENTS_API, {
       fixture: 'ingredients.json'
     }).as('getIngredients');
 
@@ -11,15 +19,18 @@ describe('Конструктор ингредиетов', () => {
   });
 
   it('Добавление ингредиентов в конструктор', () => {
-    cy.contains('li', 'булка').within(() => {
-      cy.contains('Добавить').click();
+    cy.contains(LIST_ITEM, BUN_NAME).within(() => {
+      cy.contains(ADD_BUTTON_TEXT).click();
     });
-    cy.contains('li', 'Биокотлета').within(() => {
-      cy.contains('Добавить').click();
+
+    cy.contains(LIST_ITEM, MAIN_NAME).within(() => {
+      cy.contains(ADD_BUTTON_TEXT).click();
     });
-    cy.contains('li', 'Соус').within(() => {
-      cy.contains('Добавить').click();
+
+    cy.contains(LIST_ITEM, SAUCE_NAME).within(() => {
+      cy.contains(ADD_BUTTON_TEXT).click();
     });
-    cy.contains('Оформить заказ').should('not.be.disabled');
+
+    cy.contains(ORDER_BUTTON_TEXT).should('not.be.disabled');
   });
 });
