@@ -6,7 +6,7 @@ import { feedReducer } from './feed/slice';
 import { userOrdersReducer } from './user-orders/slice';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
-const rootReducer = combineReducers({
+export const rootReducer = combineReducers({
   user: userSlice.reducer,
   ingredients: ingredientsReducer,
   burgerConstructor: burgerConstructorReducer,
